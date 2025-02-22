@@ -3,6 +3,9 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 require("dotenv").config(); // Load environment variables
 
+
+const Project = require("./models/project"); // Import Project model
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -19,7 +22,18 @@ mongoose
   .then(() => console.log("✅ Connected to MongoDB"))
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
-// API Route
+// API route to get all projects from MongoDB
+app.get("/api/projects", async (req, res) => {
+  try {
+    const projects = await Project.find(); // Fetch all projects from MongoDB
+    res.json(projects);
+  } catch (error) {
+    console.error("❌ Error fetching projects:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Default API Route
 app.get("/", (req, res) => {
   res.json({ message: "Hello from the backend!" });
 });
@@ -28,3 +42,13 @@ app.get("/", (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
+
+const manualDataProjects = async () => {
+  await Project.create([
+    { title: "Portfolio Website", description: "Built using React and Node.js" },
+ ]);
+  console.log("✅ Sample projects added!");
+};
+
+// Uncomment this to run it once
+// manualDataProjects();
