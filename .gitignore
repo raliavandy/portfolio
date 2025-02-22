@@ -9,3 +9,4 @@ server/node_modules/
 npm-debug.log
 dist/
 .vscode/
+node_modules/
