@@ -1,5 +1,5 @@
 // Frontend
-// Shows guest messages and allow visitors sign the guestbook.
+// Shows guest messages and allows visitors to sign the guestbook.
 
 import { useEffect, useState } from "react";
 
@@ -24,8 +24,8 @@ export default function App() {
       .catch((err) => console.error("Error fetching guestbook entries:", err));
   }, []);
 
-   // Send a new guestbook entry to the backend
-   const handleSubmit = async (e: React.FormEvent) => {
+  // Send a new guestbook entry to the backend
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); // Stop the page from refreshing
 
     const response = await fetch("http://localhost:5000/api/guestbook", {
@@ -36,8 +36,18 @@ export default function App() {
 
     const newEntry = await response.json(); // Get the response from backend
     setEntries([...entries, newEntry]); // Update list
-    setName("");
+    setName(""); // Clear input fields
     setMessage("");
+  };
+
+  // Delete a guestbook entry
+  const handleDelete = async (id: string) => {
+    try {
+      await fetch(`http://localhost:5000/api/guestbook/${id}`, { method: "DELETE" }); // Send delete request
+      setEntries(entries.filter((entry) => entry._id !== id)); // Remove entry from list
+    } catch (error) {
+      console.error("Error deleting entry:", error);
+    }
   };
 
   return (
@@ -66,6 +76,7 @@ export default function App() {
           <li key={entry._id}>
             <strong>{entry.name}</strong>: {entry.message} <br />
             <small>{new Date(entry.date).toLocaleString()}</small>
+            <button onClick={() => handleDelete(entry._id)}>❌ Delete</button>
           </li>
         ))}
       </ul>

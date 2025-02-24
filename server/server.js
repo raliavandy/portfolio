@@ -24,7 +24,7 @@ mongoose
 // Show all guestbook messages
 app.get("/api/guestbook", async (req, res) => {
   try {
-    const entries = await GuestBook.find(); // Get all saved guest messages from MongoDB
+    const entries = await GuestEntry.find().sort({ createdAt: -1 }); // Get all saved guest messages from MongoDB & Sort by newest first
     res.json(entries); // Send the messages back to the frontend as a response
   } catch (error) {
     res.status(500).json({ error: "Something went wrong" });
@@ -40,6 +40,17 @@ app.post("/api/guestbook", async (req, res) => {
     res.json(newEntry); // Send back the saved entry
   } catch (error) {
     res.status(500).json({ error: "Could not save your message" }); 
+  }
+});
+
+// Delete guestbook message
+app.delete("/api/guestbook/:id", async (req, res) => {
+  try {
+    // Find the guestbook entry by its ID and delete it from the database
+    await GuestEntry.findByIdAndDelete(req.params.id);
+    res.json({ message: "Entry deleted" });
+  } catch (error) {
+    res.status(500).json({ error: "Could not delete message" });
   }
 });
 
