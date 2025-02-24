@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 
 // Structure for a guestbook entry
-interface GuestEntry {
+interface GuestBook {
   _id: string;
   name: string;
   message: string;
@@ -12,7 +12,7 @@ interface GuestEntry {
 }
 
 export default function App() {
-  const [entries, setEntries] = useState<GuestEntry[]>([]); // Store guestbook messages
+  const [entries, setEntries] = useState<GuestBook[]>([]); // Store guestbook messages
   const [name, setName] = useState(""); // Store user input for name
   const [message, setMessage] = useState(""); // Store user input for message
 

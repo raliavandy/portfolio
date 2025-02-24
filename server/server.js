@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 require("dotenv").config();
 
-const GuestEntry = require("./models/GuestEntry"); // Import Guest model
+const GuestBook = require("./models/guestbook"); // Import Guest model
 
 const app = express(); // Create an Express app
 const PORT = process.env.PORT || 5000; // Set the port (use .env if available)
@@ -24,7 +24,7 @@ mongoose
 // Show all guestbook messages
 app.get("/api/guestbook", async (req, res) => {
   try {
-    const entries = await GuestEntry.find(); // Get all saved guest messages from MongoDB
+    const entries = await GuestBook.find(); // Get all saved guest messages from MongoDB
     res.json(entries); // Send the messages back to the frontend as a response
   } catch (error) {
     res.status(500).json({ error: "Something went wrong" });
@@ -35,7 +35,7 @@ app.get("/api/guestbook", async (req, res) => {
 app.post("/api/guestbook", async (req, res) => {
   try {
     const { name, message } = req.body; // Get the name and message from the request
-    const newEntry = new GuestEntry({ name, message }); // Create a new entry
+    const newEntry = new GuestBook({ name, message }); // Create a new entry
     await newEntry.save(); // Save it in MongoDB
     res.json(newEntry); // Send back the saved entry
   } catch (error) {
