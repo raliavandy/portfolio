@@ -1,3 +1,6 @@
+// Backend
+// Stores and gets guestbook messages from MongoDB.
+
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -5,30 +8,40 @@ require("dotenv").config();
 
 const GuestEntry = require("./models/GuestEntry"); // Import Guest model
 
-const app = express();
-const PORT = process.env.PORT || 5000;
+const app = express(); // Create an Express app
+const PORT = process.env.PORT || 5000; // Set the port (use .env if available)
 
+// Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json()); // Automatically turn JSON data into JavaScript objects
 
 // Connect to MongoDB
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(process.env.MONGO_URI) // Use the secret MongoDB URL from .env
   .then(() => console.log("✅ Connected to MongoDB"))
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
-// GET Guestbook Entries
+// Show all guestbook messages
 app.get("/api/guestbook", async (req, res) => {
-  const entries = await GuestEntry.find();
-  res.json(entries);
+  try {
+    const entries = await GuestEntry.find(); // Get all saved guest messages from MongoDB
+    res.json(entries); // Send the messages back to the frontend as a response
+  } catch (error) {
+    res.status(500).json({ error: "Something went wrong" });
+  }
 });
 
-// POST New Guestbook Entry
+// Add a new guestbook message
 app.post("/api/guestbook", async (req, res) => {
-  const { name, message } = req.body;
-  const newEntry = new GuestEntry({ name, message });
-  await newEntry.save();
-  res.json(newEntry);
+  try {
+    const { name, message } = req.body; // Get the name and message from the request
+    const newEntry = new GuestEntry({ name, message }); // Create a new entry
+    await newEntry.save(); // Save it in MongoDB
+    res.json(newEntry); // Send back the saved entry
+  } catch (error) {
+    res.status(500).json({ error: "Could not save your message" }); 
+  }
 });
 
+// Start the server
 app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
