@@ -1,54 +1,34 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-require("dotenv").config(); // Load environment variables
+require("dotenv").config();
 
-
-const Project = require("./models/project"); // Import Project model
+const GuestEntry = require("./models/GuestEntry"); // Import Guest model
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
 // Connect to MongoDB
 mongoose
-  .connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ Connected to MongoDB"))
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
-// API route to get all projects from MongoDB
-app.get("/api/projects", async (req, res) => {
-  try {
-    const projects = await Project.find(); // Fetch all projects from MongoDB
-    res.json(projects);
-  } catch (error) {
-    console.error("❌ Error fetching projects:", error);
-    res.status(500).json({ message: "Server error" });
-  }
+// GET Guestbook Entries
+app.get("/api/guestbook", async (req, res) => {
+  const entries = await GuestEntry.find();
+  res.json(entries);
 });
 
-// Default API Route
-app.get("/", (req, res) => {
-  res.json({ message: "Hello from the backend!" });
+// POST New Guestbook Entry
+app.post("/api/guestbook", async (req, res) => {
+  const { name, message } = req.body;
+  const newEntry = new GuestEntry({ name, message });
+  await newEntry.save();
+  res.json(newEntry);
 });
 
-// Start Server
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-});
-
-const manualDataProjects = async () => {
-  await Project.create([
-    { title: "Portfolio Website", description: "Built using React and Node.js" },
- ]);
-  console.log("✅ Sample projects added!");
-};
-
-// Uncomment this to run it once
-// manualDataProjects();
+app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));

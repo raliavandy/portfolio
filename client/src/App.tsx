@@ -1,34 +1,66 @@
 import { useEffect, useState } from "react";
 
-interface Project {
+interface GuestEntry {
   _id: string;
-  title: string;
-  description: string;
+  name: string;
+  message: string;
+  date: string;
 }
 
-function App() {
-  const [projects, setProjects] = useState<Project[]>([]);
+export default function App() {
+  const [entries, setEntries] = useState<GuestEntry[]>([]);
+  const [name, setName] = useState("");
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/projects")
+    fetch("http://localhost:5000/api/guestbook")
       .then((res) => res.json())
-      .then((data) => setProjects(data))
-      .catch((err) => console.error("Error fetching projects:", err));
+      .then((data) => setEntries(data))
+      .catch((err) => console.error("Error fetching guestbook entries:", err));
   }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const response = await fetch("http://localhost:5000/api/guestbook", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, message }),
+    });
+    const newEntry = await response.json();
+    setEntries([...entries, newEntry]); // Update list
+    setName("");
+    setMessage("");
+  };
 
   return (
     <div>
-      <h1>My Projects</h1>
+      <h1>📖 Guestbook</h1>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          placeholder="Your Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
+        <textarea
+          placeholder="Your Message"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          required
+        />
+        <button type="submit">Sign Guestbook</button>
+      </form>
+
+      <h2>Previous Entries:</h2>
       <ul>
-        {projects.map((project) => (
-          <li key={project._id}>
-            <h2>{project.title}</h2>
-            <p>{project.description}</p>
+        {entries.map((entry) => (
+          <li key={entry._id}>
+            <strong>{entry.name}</strong>: {entry.message} <br />
+            <small>{new Date(entry.date).toLocaleString()}</small>
           </li>
         ))}
       </ul>
     </div>
   );
 }
-
-export default App;
